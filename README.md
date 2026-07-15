@@ -1,6 +1,6 @@
-# Getting Started with UWP Sparkline (SfSparkline)
+# Getting Started with UWP Charts (SfChart)
 
-This sample demonstrates how to create a UWP Sparkline chart using the Syncfusion `SfLineSparkline` control.
+This sample demonstrates how to create a UWP Chart using the Syncfusion `SfChart` control.
 
 ## Prerequisites
 
@@ -30,114 +30,154 @@ xmlns:syncfusion="using:Syncfusion.UI.Xaml.Charts"
 
 ## Creating the Data Model
 
-Create a `UserProfile` model class (`ViewModel/Model.cs`) to hold the data:
+Create a `Person` model class (`Person.cs`) to hold the data:
 
 ```csharp
-using System;
-
-namespace GettingStarted
+namespace ChartDemo
 {
-    public class UserProfile
-    {
-        public DateTime TimeStamp { get; set; }
-        public double NoOfUsers { get; set; }
+    public class Person   
+    {   
+        public string Name { get; set; }
+        public double Height { get; set; }
     }
 }
 ```
 
 ## Creating the ViewModel
 
-Create a `UsersViewModel` class (`ViewModel/ViewModel.cs`) with sample data:
+Create a `ViewModel` class (`ViewModel.cs`) with sample data:
 
 ```csharp
-using System;
-using System.Collections.ObjectModel;
+using System.Collections.Generic;
 
-namespace GettingStarted
+namespace ChartDemo
 {
-    public class UsersViewModel
+    public class ViewModel  
     {
-        public UsersViewModel()
-        {
-            this.UsersList = new ObservableCollection<UserProfile>();
-            DateTime date = DateTime.Today;
-            UsersList.Add(new UserProfile { TimeStamp = date.AddHours(0.5), NoOfUsers = 3000 });
-            UsersList.Add(new UserProfile { TimeStamp = date.AddHours(0.5), NoOfUsers = 5000 });
-            UsersList.Add(new UserProfile { TimeStamp = date.AddHours(0.5), NoOfUsers = -3000 });
-            UsersList.Add(new UserProfile { TimeStamp = date.AddHours(0.5), NoOfUsers = -4000 });
-            UsersList.Add(new UserProfile { TimeStamp = date.AddHours(0.5), NoOfUsers = 2000 });
-            UsersList.Add(new UserProfile { TimeStamp = date.AddHours(0.5), NoOfUsers = 3000 });
-        }
+          public List<Person> Data { get; set; }      
 
-        public ObservableCollection<UserProfile> UsersList { get; set; }
-    }
+          public ViewModel()       
+          {
+                Data = new List<Person>()
+                {
+                    new Person { Name = "David", Height = 180 },
+                    new Person { Name = "Michael", Height = 170 },
+                    new Person { Name = "Steve", Height = 160 },
+                    new Person { Name = "Joel", Height = 182 }
+                }; 
+           }
+     }
 }
 ```
 
-## Initializing the Sparkline (XAML)
+## Initializing the Chart (XAML)
 
-In `MainPage.xaml`, set the `DataContext` to `UsersViewModel`, then initialize `SfLineSparkline` by binding `ItemsSource` to the data collection and setting `YBindingPath` to the data property:
+In `MainPage.xaml`, set the `DataContext` to `ViewModel`, then initialize `SfChart` with axes and series:
 
 ```xml
 <Page
-    x:Class="GettingStarted.MainPage"
+    x:Class="ChartDemo.MainPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:GettingStarted"
+    xmlns:local="using:ChartDemo"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:syncfusion="using:Syncfusion.UI.Xaml.Charts"
-    mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    mc:Ignorable="d">
 
-    <Grid>
-        <Grid.DataContext>
-            <local:UsersViewModel/>
-        </Grid.DataContext>
+    <Page.DataContext>
+        <local:ViewModel/>
+    </Page.DataContext>
 
-        <syncfusion:SfLineSparkline Interior="#4a4a4a"
-                                    BorderThickness="1"
-                                    ItemsSource="{Binding UsersList}"
-                                    BorderBrush="DarkGray"
-                                    YBindingPath="NoOfUsers">
-        </syncfusion:SfLineSparkline>
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+        <syncfusion:SfChart Header="Chart" Height="300" Width="500">
+            <!--Initialize the horizontal axis for SfChart-->
+            <syncfusion:SfChart.PrimaryAxis>
+                <syncfusion:CategoryAxis Header="Name" FontSize="14"/>
+            </syncfusion:SfChart.PrimaryAxis>
+
+            <!--Initialize the vertical axis for SfChart-->
+            <syncfusion:SfChart.SecondaryAxis>
+                <syncfusion:NumericalAxis Header="Height(in cm)" FontSize="14"/>
+            </syncfusion:SfChart.SecondaryAxis>
+
+            <!--Adding Legend to the SfChart-->
+            <syncfusion:SfChart.Legend>
+                <syncfusion:ChartLegend/>
+            </syncfusion:SfChart.Legend>
+
+            <!--Initialize the series for SfChart-->
+            <syncfusion:ColumnSeries Label="Heights" ItemsSource="{Binding Data}" XBindingPath="Name" YBindingPath="Height" ShowTooltip="True" >
+                <syncfusion:ColumnSeries.AdornmentsInfo>
+                    <syncfusion:ChartAdornmentInfo ShowLabel="True" >
+                    </syncfusion:ChartAdornmentInfo>
+                </syncfusion:ColumnSeries.AdornmentsInfo>
+            </syncfusion:ColumnSeries>
+                      
+        </syncfusion:SfChart>
+
     </Grid>
 </Page>
 ```
 
-## Initializing the Sparkline (Code-Behind)
+## Initializing the Chart (Code-Behind)
 
-Alternatively, you can create the sparkline entirely in C# code-behind:
+Alternatively, you can create the chart entirely in C# code-behind:
 
 ```csharp
 using Syncfusion.UI.Xaml.Charts;
-using Windows.UI;
-using Windows.UI.Xaml.Media;
+using Windows.UI.Xaml.Controls;
 
-// Creating the ViewModel
-UsersViewModel viewModel = new UsersViewModel();
+public sealed partial class MainPage : Page
+{
+    public MainPage()
+    {
+        this.InitializeComponent();
+        
+        SfChart chart = new SfChart() { Header = "Chart", Height = 300, Width = 500 };
 
-// Assigning the data context
-this.DataContext = viewModel;
+        //Adding horizontal axis to the chart 
+        CategoryAxis primaryAxis = new CategoryAxis();
+        primaryAxis.Header = "Name";
+        primaryAxis.FontSize = 14;
+        chart.PrimaryAxis = primaryAxis;
 
-// Initializing the sparkline
-SfLineSparkline sfLineSparkline = new SfLineSparkline();
+        //Adding vertical axis to the chart 
+        NumericalAxis secondaryAxis = new NumericalAxis();
+        secondaryAxis.Header = "Height(in cm)";
+        secondaryAxis.FontSize = 14;
+        chart.SecondaryAxis = secondaryAxis;
 
-// Setting ItemsSource and YBindingPath
-sfLineSparkline.ItemsSource = viewModel.UsersList;
-sfLineSparkline.YBindingPath = "NoOfUsers";
+        //Adding Legends for the chart
+        ChartLegend legend = new ChartLegend();
+        chart.Legend = legend;
 
-// Customizing appearance
-sfLineSparkline.Interior = new SolidColorBrush(Color.FromArgb(255, 74, 74, 74));
-sfLineSparkline.BorderBrush = new SolidColorBrush(Colors.DarkGray);
-sfLineSparkline.BorderThickness = new Thickness(1);
+        //Initializing column series
+        ColumnSeries series = new ColumnSeries();
+        series.ItemsSource = (new ViewModel()).Data;
+        series.XBindingPath = "Name";            
+        series.YBindingPath = "Height";
+        series.ShowTooltip = true;
+        series.Label = "Heights";      
 
-// Adding sparkline to the Grid
-grid.Children.Add(sfLineSparkline);
+        //Setting adornment to the chart series
+        series.AdornmentsInfo = new ChartAdornmentInfo() { ShowLabel = true };
+
+        //Adding Series to the Chart Series Collection
+        chart.Series.Add(series);
+        this.Content = chart;                  
+    }
+}
 ```
 
+## Run the Sample
+
+1. Open `ChartDemo.slnx` in Visual Studio.
+2. Build and run the project.
+3. The application will display a column chart rendered with the sample data.
 ![Getting started with uwp chart](gettingstarted.png)
 
 ## Reference
 
-- [Syncfusion UWP Sparkline Getting Started Documentation](https://help.syncfusion.com/uwp/sparkline/getting-started)
+- [Syncfusion UWP Chart Getting Started Documentation](https://help.syncfusion.com/uwp/charts/overview)
