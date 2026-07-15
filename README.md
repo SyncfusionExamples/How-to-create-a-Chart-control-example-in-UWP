@@ -1,38 +1,143 @@
-# How-to-create-a-Chart-control-example-in-UWP
+# Getting Started with UWP Sparkline (SfSparkline)
 
-## SfChart in UWP
+This sample demonstrates how to create a UWP Sparkline chart using the Syncfusion `SfLineSparkline` control.
 
-[SfChart](https://help.syncfusion.com/cr/uwp/Syncfusion.UI.Xaml.Charts.SfChart.html) provides a perfect way to visualize data with a high level of user interactivity that focuses on development, productivity and simplicity of use. SfChart also provides a wide variety of charting features that are used to visualize large quantities of data, flexible data binding and user customization.
+## Prerequisites
 
-## Key features
+- Visual Studio 2019 or later
+- Windows 10 SDK (10.0.17763.0 or later)
+- [Syncfusion.SfChart.UWP](https://www.nuget.org/packages/Syncfusion.SfChart.UWP) NuGet package (latest)
 
-* [SfChart](https://help.syncfusion.com/cr/uwp/Syncfusion.UI.Xaml.Charts.SfChart.html) supports 38 different types of series, ranging from simple bar series to complex financial charts. Each type of chart represents a unique style of representing data with more user friendly and greater UI visualization.
+## Adding Assembly Reference
 
-* Capable of rendering large amount of data within the few milliseconds (ms).
+### Option 1: Via NuGet Package Manager
 
-* Allows you to map data from the specified path, by achieving data binding concept.
+1. Right-click on the project in **Solution Explorer** and select **Manage NuGet Packages**.
+2. Search for `Syncfusion.SfChart.UWP` and install it.
 
-* Interactive zooming can be done with touch mode enabled that allows you to explore portions of large charts in more detail, with excellent performance.
+### Option 2: Via Extension Reference
 
-* When you need more information about particular segment in a chart, a little mouseover on the series provides much more information by including tooltip, crosshair and track ball behavior.
+1. Open the **Add Reference** window from your project.
+2. Choose **Windows > Extensions > Syncfusion Controls for UWP XAML**.
 
-* Supports 10 different types of technical indicators that determine financial, stock or economic trends by analyzing a set of recorded data.
+## Adding Namespace
 
-* Supports multiple axes that can be stacked and spanned for multiple panes.
-[SfChart](https://help.syncfusion.com/cr/uwp/Syncfusion.UI.Xaml.Charts.SfChart.html) provides support for rendering multiple series at same time, with options to compare and visualize two different chart series, simultaneously.
+After adding the reference, include the following namespace in your `MainPage.xaml`:
 
-* User friendly and provides various options for you to customize chart features like axis, labels, legends, series, etc and visualize them accordingly.
+```xml
+xmlns:syncfusion="using:Syncfusion.UI.Xaml.Charts"
+```
 
-[SfChart](https://help.syncfusion.com/cr/uwp/Syncfusion.UI.Xaml.Charts.SfChart.html) provides a perfect way to visualize data with a high level of user interactivity that focuses on development, productivity and simplicity of use. SfChart also provides a wide variety of charting features that are used to visualize large quantities of data, flexible data binding and user customization.
-This demo explains how to create a Syncfusion Chart control example in UWP.
+## Creating the Data Model
 
-[User Documentation](https://help.syncfusion.com/uwp/charts/overview)
+Create a `UserProfile` model class (`ViewModel/Model.cs`) to hold the data:
 
-[Feature exploration about SfChart](https://www.syncfusion.com/uwp-ui-controls/charts)
+```csharp
+using System;
 
+namespace GettingStarted
+{
+    public class UserProfile
+    {
+        public DateTime TimeStamp { get; set; }
+        public double NoOfUsers { get; set; }
+    }
+}
+```
 
-## See also
+## Creating the ViewModel
 
-* [Binding series collection property using MVVM pattern in UWP Chart](https://support.syncfusion.com/kb/article/8343/binding-series-collection-property-using-mvvm-pattern-in-uwp-chart)
+Create a `UsersViewModel` class (`ViewModel/ViewModel.cs`) with sample data:
 
-* [How to export all the charts in the panel properly?](https://support.syncfusion.com/kb/article/6269/how-to-export-all-the-charts-in-the-panel-properly)
+```csharp
+using System;
+using System.Collections.ObjectModel;
+
+namespace GettingStarted
+{
+    public class UsersViewModel
+    {
+        public UsersViewModel()
+        {
+            this.UsersList = new ObservableCollection<UserProfile>();
+            DateTime date = DateTime.Today;
+            UsersList.Add(new UserProfile { TimeStamp = date.AddHours(0.5), NoOfUsers = 3000 });
+            UsersList.Add(new UserProfile { TimeStamp = date.AddHours(0.5), NoOfUsers = 5000 });
+            UsersList.Add(new UserProfile { TimeStamp = date.AddHours(0.5), NoOfUsers = -3000 });
+            UsersList.Add(new UserProfile { TimeStamp = date.AddHours(0.5), NoOfUsers = -4000 });
+            UsersList.Add(new UserProfile { TimeStamp = date.AddHours(0.5), NoOfUsers = 2000 });
+            UsersList.Add(new UserProfile { TimeStamp = date.AddHours(0.5), NoOfUsers = 3000 });
+        }
+
+        public ObservableCollection<UserProfile> UsersList { get; set; }
+    }
+}
+```
+
+## Initializing the Sparkline (XAML)
+
+In `MainPage.xaml`, set the `DataContext` to `UsersViewModel`, then initialize `SfLineSparkline` by binding `ItemsSource` to the data collection and setting `YBindingPath` to the data property:
+
+```xml
+<Page
+    x:Class="GettingStarted.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:GettingStarted"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:syncfusion="using:Syncfusion.UI.Xaml.Charts"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Grid>
+        <Grid.DataContext>
+            <local:UsersViewModel/>
+        </Grid.DataContext>
+
+        <syncfusion:SfLineSparkline Interior="#4a4a4a"
+                                    BorderThickness="1"
+                                    ItemsSource="{Binding UsersList}"
+                                    BorderBrush="DarkGray"
+                                    YBindingPath="NoOfUsers">
+        </syncfusion:SfLineSparkline>
+    </Grid>
+</Page>
+```
+
+## Initializing the Sparkline (Code-Behind)
+
+Alternatively, you can create the sparkline entirely in C# code-behind:
+
+```csharp
+using Syncfusion.UI.Xaml.Charts;
+using Windows.UI;
+using Windows.UI.Xaml.Media;
+
+// Creating the ViewModel
+UsersViewModel viewModel = new UsersViewModel();
+
+// Assigning the data context
+this.DataContext = viewModel;
+
+// Initializing the sparkline
+SfLineSparkline sfLineSparkline = new SfLineSparkline();
+
+// Setting ItemsSource and YBindingPath
+sfLineSparkline.ItemsSource = viewModel.UsersList;
+sfLineSparkline.YBindingPath = "NoOfUsers";
+
+// Customizing appearance
+sfLineSparkline.Interior = new SolidColorBrush(Color.FromArgb(255, 74, 74, 74));
+sfLineSparkline.BorderBrush = new SolidColorBrush(Colors.DarkGray);
+sfLineSparkline.BorderThickness = new Thickness(1);
+
+// Adding sparkline to the Grid
+grid.Children.Add(sfLineSparkline);
+```
+
+![Getting started with uwp chart](gettingstarted.png)
+
+## Reference
+
+- [Syncfusion UWP Sparkline Getting Started Documentation](https://help.syncfusion.com/uwp/sparkline/getting-started)
