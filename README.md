@@ -4,7 +4,7 @@ This sample demonstrates how to create a UWP Chart using the Syncfusion `SfChart
 
 ## Prerequisites
 
-- Visual Studio 2019 or later
+- Visual Studio 2022 or later
 - Windows 10 SDK (10.0.17763.0 or later)
 - [Syncfusion.SfChart.UWP](https://www.nuget.org/packages/Syncfusion.SfChart.UWP) NuGet package (latest)
 
